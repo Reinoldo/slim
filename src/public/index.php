@@ -27,6 +27,10 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+$container['view'] = new \Slim\Views\PhpRenderer("../templates/");
+
+// rotes below
+
 $app->get('/', function (Request $request, Response $response) {
     $name = $request->getAttribute('name');
     $response->getBody()->write("Pagina Principal");
@@ -40,10 +44,17 @@ $app->get('/tickets', function (Request $request, Response $response) {
     $this->logger->addInfo("Ticket list page");
     //$mapper = new TicketMapper($this->db);
     //$tickets = $mapper->getTickets();
-    $tickets = new stdClass();
-    $tickets->id = 1;
-    $tickets->nome = "jhonatan";
-    $response->getBody()->write(var_export($tickets, true));
+   
+    $ticket = new stdClass();
+    $ticket->id = 1;
+    $ticket->nome = "jhonatan";
+    $tickets[] =  $ticket;
+    $t2 = clone  $ticket;
+    $t2->nome = "maria";
+    $t2->id = 2;
+    $tickets[] =  $t2;
+
+   $response = $this->view->render($response, "tickets.phtml", ["tickets" => $tickets, "router" => $this->router]);
     return $response;
 });
 
@@ -55,7 +66,7 @@ $app->get('/ticket/{id}', function (Request $request, Response $response, $args)
 
     $response->getBody()->write(var_export($ticket, true));
     return $response;
-});
+})->setName("ticket-detail");
 
 $app->get('/hello/{name}', function (Request $request, Response $response) {
     $name = $request->getAttribute('name');
